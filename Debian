@@ -1,0 +1,395 @@
+#!/bin/bash
+#Author Enoch Masih
+#Week 2 Linux Admin 
+#The Purpose of this script is to create usernames and passwords from a list. 
+#The script will provide the option to create groups. 
+#Tip- Understanding the script will be easier if read from the bottom to top.
+
+
+#Functions that the program uses
+
+#Function designed to terminate the program. 
+leave_program () {
+	echo
+	echo "This program will now terminate."
+	echo "================================================="
+	exit
+}
+
+#Function designed to remove users. The user must manually enter the username which is to be delete.Function will not only delete user, but it will also remove the associated home directory. 
+user_remove () {
+	echo "Remove User"
+	echo "================================================="
+	echo
+	read -p "Enter username:" user_remove
+	sudo userdel -r $user_remove
+	sudo rm -rf /home/$user_remove
+	echo "Process Complete."
+	sleep 1
+	user
+}
+
+#Function designed to create a user.First asks the user for file location, creates username by combining a random integer (ranging from 1-4 digits) with the first three letters of the user's name.  
+user_create () {
+	echo "Create User"
+	echo "================================================"
+	echo "Which group would you like to add all the users to?"
+	echo "1. Admin"
+	echo "2. Developers"
+	echo "3. Staff"
+	echo "4. temp"
+	echo "5. go back"
+	read -p ">>>>>:" user_groupchoice
+	if [ $user_groupchoice == 1 ];
+	then 
+		groupchoice=admin_acme
+		echo "Users will be added to the Admin group."
+		echo
+		echo "Specify the text file location containing the userlist. Path must end in \".txt\""
+		read -p ">>>>>:" username_file
+		while IFS= read each_user;
+		do
+			num=$(( RANDOM % 10000 )) #creates 1-4 digit random int
+			user_cut=${each_user:0:3} #takes the first three characters from list
+			user_cut=$(echo "$user_cut" | tr '[:upper:]' '[:lower:]') #makes it lower case
+			username_new=$user_cut$num #joins together the name and random number
+			adduser --disabled-password --ingroup $groupchoice --gecos "" $username_new #adds user this command is different for Cent OS then Debian
+			(echo '123'; echo '123';) | passwd $username_new
+			usermod -aG sudo $username_new #This group is changed to wheel in centOS
+			echo -e "$username_new--123--$groupchoice--$each_user\n" >> /home/username_new.txt 
+			chgrp -R admin_acme /home/$username_new/admin_acme #Changes group permission
+			chgrp -R developer_acme /home/$username_new/developer_acme
+			chgrp -R staff_acme /home/$username_new/staff_acme
+			chgrp -R temp_acme /home/$username_new/temp_acme
+			chmod 770 /home/$username_new/admin_acme
+			chmod -R 070 /home/$username_new/developer_acme
+			chmod -R 070 /home/$username_new/staff_acme
+			chmod -R 070 /home/$username_new/temp_acme
+		done < $username_file
+		echo
+		echo
+		echo "Process Complete."
+		echo "Username_new.txt has been saved to home directory containing username information."
+		echo "the file will contain username, password, group, and the name of each employee."
+		echo
+		user
+
+	elif [ $user_groupchoice == 2 ];
+	then 
+		groupchoice=developer_acme
+		echo "Users will be added to the Developers group."
+		echo
+		echo "Specify the text file location containing the userlist. Path must end in \".txt\""
+		read -p ">>>>>:" username_file
+		while IFS= read each_user;
+		do
+			num=$(( RANDOM % 10000 )) #creates 1-4 digit random int
+			user_cut=${each_user:0:3} #takes the first three characters from list
+			user_cut=$(echo "$user_cut" | tr '[:upper:]' '[:lower:]') #makes it lower case
+			username_new=$user_cut$num #joins together the name and random number
+			adduser --disabled-password --ingroup $groupchoice --gecos "" $username_new
+			(echo '123'; echo '123';) | passwd $username_new
+			echo -e "$username_new--123--$groupchoice--$each_user\n" >> /home/username_new.txt 
+			chgrp -R admin_acme /home/$username_new/admin_acme # Changes group permission
+			chgrp -R developer_acme /home/$username_new/developer_acme
+			chgrp -R staff_acme /home/$username_new/staff_acme
+			chgrp -R temp_acme /home/$username_new/temp_acme
+			chmod -R 070 /home/$username_new/admin_acme
+			chmod 770 /home/$username_new/developer_acme
+			chmod -R 070 /home/$username_new/staff_acme
+			chmod -R 070 /home/$username_new/temp_acme
+			usermod --shell /bin/csh $username_new #Sets user's Login shell as c shell 
+		done < $username_file
+		echo
+		echo
+		echo "Process Complete."
+		echo "Username_new.txt has been saved to home directory containing username information."
+		echo "the file will contain username, password, group, and the name of each employee."
+		echo
+		user
+	
+	elif [ $user_groupchoice == 3 ];
+	then 
+		groupchoice=staff_acme
+		echo "Users will be added to the Staff group."
+		echo
+		echo "Specify the text file location containing the userlist. Path must end in \".txt\""
+		read -p ">>>>>:" username_file
+		while IFS= read each_user;
+		do
+			num=$(( RANDOM % 10000 )) #creates 1-4 digit random int
+			user_cut=${each_user:0:3} #takes the first three characters from list
+			user_cut=$(echo "$user_cut" | tr '[:upper:]' '[:lower:]') #makes it lower case
+			username_new=$user_cut$num #joins together the name and random number
+			adduser --disabled-password --ingroup $groupchoice --gecos "" $username_new
+			(echo '123'; echo '123';) | passwd $username_new
+			echo -e "$username_new--123--$groupchoice--$each_user\n" >> /home/username_new.txt 
+			chgrp -R admin_acme /home/$username_new/admin_acme # Changes group permission
+			chgrp -R developer_acme /home/$username_new/developer_acme
+			chgrp -R staff_acme /home/$username_new/staff_acme
+			chgrp -R temp_acme /home/$username_new/temp_acme
+			chmod -R 070 /home/$username_new/admin_acme
+			chmod -R 070 /home/$username_new/developer_acme
+			chmod 770 /home/$username_new/staff_acme
+			chmod -R 070 /home/$username_new/temp_acme	
+		done < $username_file
+		echo
+		echo
+		echo "Process Complete."
+		echo "Username_new.txt has been saved to home directory containing username information."
+		echo "the file will contain username, password, group, and the name of each employee."
+		echo
+		user
+
+	elif [ $user_groupchoice == 4 ];
+	then
+		groupchoice=temp_acme
+		echo "Users will be added to the temp group."
+		echo
+		echo "Specify the text file location containing the userlist. Path must end in \".txt\""
+		read -p ">>>>>:" username_file
+		while IFS= read each_user;
+		do
+			num=$(( RANDOM % 10000 )) #creates 1-4 digit random int
+			user_cut=${each_user:0:3} #takes the first three characters from list
+			user_cut=$(echo "$user_cut" | tr '[:upper:]' '[:lower:]') #makes it lower case
+			username_new=$user_cut$num #joins together the name and random number
+			adduser --disabled-password --ingroup $groupchoice --gecos "" $username_new
+			(echo '123'; echo '123';) | passwd $username_new
+			echo -e "$username_new--123--$groupchoice--$each_user\n" >> /home/username_new.txt 
+			chgrp -R admin_acme /home/$username_new/admin_acme # Changes group permission
+			chgrp -R developer_acme /home/$username_new/developer_acme
+			chgrp -R staff_acme /home/$username_new/staff_acme
+			chgrp -R temp_acme /home/$username_new/temp_acme
+			chmod -R 070 /home/$username_new/admin_acme
+			chmod -R 070 /home/$username_new/developer_acme
+			chmod -R 070 /home/$username_new/staff_acme
+			chmod 770 /home/$username_new/temp_acme	
+		done < $username_file 
+		echo
+		echo
+		echo "Process Complete."
+		echo "Username_new.txt has been saved to home directory containing username information."
+		echo "the file will contain username, password, group, and the name of each employee."
+		echo
+		user
+
+	elif [ $user_groupchoice == 5 ];
+	then 
+		user
+		echo
+	else
+		echo "Please select 1, 2, 3, 4, or 5."
+		sleep 2
+		user
+	fi	
+}
+
+#Function designed to check if user is already in system. This requires manual entery of each user.
+user_check () {
+
+	echo "Check User"
+	echo "================================================"
+	echo "Check if user already exsists in the system."
+	read -p "Enter the username:" name
+	sys_user=/etc/passwd
+	if grep -q "$name" $sys_user
+	then 
+		echo
+		echo "User already exsists in the system."
+		grep "$name" $sys_user
+		echo
+		sleep 1
+		user
+
+	else 
+		echo
+		echo "This user is not part of this system."
+		echo
+		sleep 1
+		user
+	fi
+}
+#Function designed to Remove a Group.
+remove_groups () {
+	echo "Remove Group"
+	echo "================================================"
+	groupdel admin_acme
+	groupdel developer_acme
+	groupdel staff_acme
+	groupdel temp_acme
+	rm -r /etc/skel/admin_acme
+	rm -r /etc/skel/developer_acme
+	rm -r /etc/skel/staff_acme
+	rm -r /etc/skel/temp_acme
+	rm -r /etc/skel/Company_Policy #Also delets the company policy directory
+	echo "Process Complete."
+	echo Admin, Developer, Staff, and Temp groups deleted.
+	group
+
+
+}
+#Function designed to create pre-defined groups.
+create_groups () {
+		mkdir /etc/skel/Company_Policy #makes Company policy directory accessible to company
+		echo "Rule 1. Do unto others as you would have them do unto you." > /etc/skel/Company_Policy/Rule_1.txt
+		chmod 550 /etc/skel/Company_Policy
+		echo "Creating Admin Group."
+		groupadd admin_acme
+		mkdir /etc/skel/admin_acme
+		chgrp -R admin_acme /etc/skel/admin_acme #-R option makes the command recursive, so all sub-directories have the same permissions.
+		chmod 770 /etc/skel/admin_acme
+		mkdir /etc/skel/admin_acme/admin_policy
+		chmod -R 550 /etc/skel/admin_acme/admin_policy
+		echo "Creating Developers Group"
+		groupadd developer_acme
+		mkdir /etc/skel/developer_acme
+		chgrp -R developer_acme /etc/skel/developer_acme
+		chmod 770 /etc/skel/developer_acme
+		mkdir /etc/skel/developer_acme/developer_policy
+		chmod -R 550 /etc/skel/developer_acme/developer_policy
+		echo "Creating Staff Group"
+		groupadd staff_acme
+		mkdir /etc/skel/staff_acme
+		chgrp -R staff_acme /etc/skel/staff_acme
+		chmod 770 /etc/skel/staff_acme
+		mkdir /etc/skel/staff_acme/staff_policy
+		chmod -R 550 /etc/skel/staff_acme/staff_policy
+		echo "Creating Temp Group"
+		groupadd temp_acme
+		mkdir /etc/skel/temp_acme
+		chgrp -R temp_acme /etc/skel/temp_acme
+		chmod 770 /etc/skel/temp_acme
+		mkdir /etc/skel/temp_acme/temp_policy
+		chmod -R 550 /etc/skel/temp_acme/temp_policy
+		echo "Process Complete."
+		group
+}	
+
+#Function designed to show groups of a specific user. 
+show_groups () {
+	echo "Show Groups"
+	echo "==============================================="
+	echo "1. Show groups by username"
+	echo "2. Show all groups in the system"
+	echo "3. Go back"
+	read -p ">>>>>" sho_groupopt
+	if [ $sho_groupopt == 1 ];
+	then 
+		echo
+		read -p "Enter the username:" show_groups_var1
+		groups $show_groups_var1 
+		echo "details:"
+		grep $show_groups_var1 /etc/passwd
+		sleep 1
+		echo
+		show_groups
+	elif [ $sho_groupopt == 2 ];
+	then 
+		echo
+		cat /etc/group
+		sleep 1
+		echo
+		show_groups
+	elif [ $sho_groupopt == 3 ];
+	then 
+		group
+	else
+		echo "Please enter either 1, 2, or 3"
+		show_groups
+	fi
+}
+
+#Function designed to provide options for user.
+user () {
+	echo "Users"
+	echo "================================================"
+	echo "1. Verify user"
+	echo "2. Create users WARNING:Create groups first"
+	echo "3. Remove a user"
+	echo "4. Return to Main Menu"
+	#IF statement which will launch the script within the selected option. 
+	read user_option
+	if [ $user_option == 1 ];
+	then 
+		user_check
+	elif [ $user_option == 2 ];
+	then 
+		user_create
+	elif [ $user_option == 3 ];
+	then 
+		user_remove
+	elif [ $user_option == 4 ];
+	then 
+		main_menu
+	else
+		echo "Key entered is not recognized. Please select 1, 2, 3, or 4."
+		user 
+	fi
+}	
+
+#Function designed to provide options for groups.
+group () {
+	echo "Groups"
+	echo "================================================="
+	echo "1. Show user groups"
+	echo "2. Create groups"
+	echo "3. remove a group"
+	echo "4. Return to Main Menu"
+	#IF statement which will launch the script within the selected option.
+	read group_option
+	if [ $group_option == 1 ];
+	then
+		show_groups
+	elif [ $group_option == 2 ];
+	then
+		create_groups
+	elif [ $group_option == 3 ];
+	then
+		remove_groups
+	elif [ $group_option == 4 ];
+	then
+		main_menu
+	else
+		echo "Please select 1, 2, 3, or 4"
+		sleep 2
+		group
+	fi
+}
+
+#Function for the Main Menu option
+main_menu () {
+#provides instructions to user, provides the options,then reads user input into main_option.
+	clear
+	echo "Please press the number for the options listed."
+	echo "================================================="
+	echo "1. Users"
+	echo "2. Groups" 
+	echo "3. exit program"
+	read main_option
+	#IF statement which launch the script within the selected option.
+	if [ $main_option == 1 ];
+	then
+		user
+	elif [ $main_option == 2 ];
+	then 
+		group
+	elif [ $main_option == 3 ];
+	then
+		leave_program
+	else 
+	#If user fails to enter either 1, 2, or 3 then the program will print this and terminate.
+		echo "================================================="
+		echo "Run the program and select either 1, 2, or 3. Then press the ENTER key."
+    		echo "The program will now terminate."
+		sleep 2
+		echo "================================================="
+		exit 
+	fi
+}
+
+#Clears the screen, then welcomes user to the program.Initiates the main_menu function.
+clear 
+echo "================================================="
+echo "Welcome to Enoch's Username and Password Creator."
+main_menu
